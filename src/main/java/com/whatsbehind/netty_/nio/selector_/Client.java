@@ -1,4 +1,4 @@
-package com.whatsbehind.netty_.nio.nonblocking;
+package com.whatsbehind.netty_.nio.selector_;
 
 import com.whatsbehind.utility.Scanner_;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +19,7 @@ public class Client {
         while (true) {
             String input = Scanner_.scanLine("Input: ");
             log.debug("Sending data [{}] to server", input);
-            sc.write(StandardCharsets.UTF_8.encode(input));
+//            sc.write(StandardCharsets.UTF_8.encode(input));
             log.debug("Sent data [{}] to server", input);
         }
     }
