@@ -1,7 +1,6 @@
 package com.whatsbehind.netty_.nio.multiplethreads;
 
 import lombok.extern.slf4j.Slf4j;
-
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.*;
@@ -23,6 +22,8 @@ public class Server {
         SelectionKey bossKey = ssc.register(boss, 0, null);
         bossKey.interestOps(SelectionKey.OP_ACCEPT);
 
+        Worker worker1 = new Worker("work-1");
+
         while (true) {
             boss.select();
             Iterator<SelectionKey> keyIterator = boss.selectedKeys().iterator();
@@ -33,6 +34,8 @@ public class Server {
                     ServerSocketChannel server = (ServerSocketChannel) key.channel();
                     SocketChannel sc = server.accept();
                     log.debug("Accept client [{}] connection", sc.getRemoteAddress());
+
+                    worker1.register(sc);
                 }
             }
         }

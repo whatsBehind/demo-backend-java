@@ -10,4 +10,9 @@ public class ByteBufferReader {
         String data = StandardCharsets.UTF_8.decode(buffer).toString();
         log.debug(data);
     }
+
+    public static void readAll(String prefix, ByteBuffer buffer) {
+        String data = StandardCharsets.UTF_8.decode(buffer).toString();
+        log.debug(prefix + data);
+    }
 }
