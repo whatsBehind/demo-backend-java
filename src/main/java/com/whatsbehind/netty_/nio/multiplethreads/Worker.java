@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
 import java.util.Iterator;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 @Getter
 @Setter
@@ -17,6 +18,7 @@ public class Worker implements Runnable {
     private Selector selector;
     private String name;
     private boolean start;
+    private ConcurrentLinkedQueue<Runnable> tasks = new ConcurrentLinkedQueue<>();
 
     public Worker(String name) {
         this.name = name;
@@ -31,8 +33,14 @@ public class Worker implements Runnable {
             log.debug("Start selector and thread in {}", name);
         }
         sc.configureBlocking(false);
-        sc.register(selector, SelectionKey.OP_READ, null);
-        log.debug("Register client [{}] with {}", sc.getRemoteAddress(), name);
+        tasks.add(() -> {
+            try {
+                sc.register(selector, SelectionKey.OP_READ, null);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        selector.wakeup();
     }
 
     @Override
@@ -41,13 +49,18 @@ public class Worker implements Runnable {
             try {
                 log.debug("{} is listening...", name);
                 selector.select();
+                if (!tasks.isEmpty()) {
+                    tasks.poll().run();
+                    log.debug("Register client with {}", name);
+                }
                 Iterator<SelectionKey> iterator = selector.selectedKeys().iterator();
                 while (iterator.hasNext()) {
                     SelectionKey key = iterator.next();
+                    iterator.remove();
                     if (key.isReadable()) {
                         SocketChannel sc = (SocketChannel) key.channel();
                         log.debug("Reading message from client [{}]", sc.getRemoteAddress());
-                        ByteBuffer buffer = ByteBuffer.allocate(16);
+                        ByteBuffer buffer = ByteBuffer.allocate(32);
 
                         sc.read(buffer);
                         buffer.flip();

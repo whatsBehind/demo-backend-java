@@ -21,6 +21,7 @@ public class Server {
         Selector boss = Selector.open();
         SelectionKey bossKey = ssc.register(boss, 0, null);
         bossKey.interestOps(SelectionKey.OP_ACCEPT);
+        log.debug("Boss starts working...");
 
         Worker worker1 = new Worker("work-1");
 
