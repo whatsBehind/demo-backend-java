@@ -23,7 +23,11 @@ public class Server {
         bossKey.interestOps(SelectionKey.OP_ACCEPT);
         log.debug("Boss starts working...");
 
-        Worker worker1 = new Worker("work-1");
+        Worker[] workers = new Worker[]{
+                new Worker("worker-0"),
+                new Worker("worker-1")
+        };
+        int count = 0;
 
         while (true) {
             boss.select();
@@ -36,7 +40,7 @@ public class Server {
                     SocketChannel sc = server.accept();
                     log.debug("Accept client [{}] connection", sc.getRemoteAddress());
 
-                    worker1.register(sc);
+                    workers[count++ % 2].register(sc);
                 }
             }
         }
