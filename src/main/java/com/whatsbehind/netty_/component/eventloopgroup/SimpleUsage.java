@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
-public class SinpleUsage {
+public class SimpleUsage {
 
     public static void main(String[] args) {
         EventLoopGroup group = new NioEventLoopGroup(2);
